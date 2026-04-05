@@ -29,10 +29,8 @@ const LoginPage = () => {
     <div className="min-h-screen flex bg-background">
       {/* Left panel - decorative */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 rounded-full bg-accent" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full bg-accent" />
-        </div>
+        <img src={campusHero} alt="University campus at sunset" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/70" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
