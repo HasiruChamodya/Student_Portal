@@ -29,7 +29,7 @@ const LoginPage = () => {
     <div className="min-h-screen flex bg-background">
       {/* Left panel - decorative */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
-        <img src={campusHero} alt="University campus at sunset" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        <img src={campusHero} alt="University campus at sunset" className="absolute inset-0 w-full h-full object-cover opacity-100" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/70" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,7 +39,11 @@ const LoginPage = () => {
         >
           <GraduationCap className="h-20 w-20 text-primary-foreground mx-auto mb-6" />
           <h1 className="font-heading text-4xl font-bold text-primary-foreground mb-4">
-            University Portal
+            University Of Kelaniya
+            
+          </h1>
+          <h1 className="font-heading text-4xl font-bold text-primary-foreground mb-4">
+            Faculty Information System
           </h1>
           <p className="text-primary-foreground/80 text-lg max-w-md">
             Access your academic records, register for courses, and manage your student profile — all in one place.
@@ -82,7 +86,7 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-12 px-4 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow"
-                placeholder="e.g. jane.doe@university.edu"
+                placeholder="Student ID"
                 autoComplete="email"
                 aria-required="true"
               />

@@ -25,11 +25,11 @@ export const useAuth = () => {
 };
 
 const mockUser: User = {
-  name: "Jane Doe",
-  id: "STU-2024-0042",
+  name: "Kumara Perera",
+  id: "IM/2022/020",
   academicYear: "Year 3",
-  faculty: "Faculty of Computing",
-  program: "BSc Computer Science",
+  faculty: "Faculty of Science",
+  program: "BSc in Information Technology",
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

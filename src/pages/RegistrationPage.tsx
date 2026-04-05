@@ -14,32 +14,32 @@ interface Course {
 
 const mockCourses: Record<string, Course[]> = {
   "year-1": [
-    { code: "CS101", name: "Introduction to Computing", credits: 3, grade: "A", status: "pass" },
-    { code: "CS102", name: "Programming Fundamentals", credits: 4, grade: "B+", status: "pass" },
-    { code: "MA101", name: "Calculus I", credits: 3, grade: "C", status: "pass" },
-    { code: "EN101", name: "Academic English", credits: 2, grade: "B", status: "pass" },
-    { code: "PH101", name: "Physics for Engineers", credits: 3, grade: "D", status: "fail" },
+    { code: "INTE 1102", name: "Programming Fundamentals", credits: 2, grade: "B+", status: "pass" },
+    { code: "INTE 1203", name: "Introduction to Computing", credits: 3, grade: "A", status: "pass" },
+    { code: "INTE 1303", name: "Computer Hardware", credits: 3, grade: "C", status: "pass" },
+    { code: "INTE 1402", name: "English for Professionals", credits: 2, grade: "B", status: "pass" },
+    { code: "MGTE 1502", name: "Optimaization", credits: 3, grade: "D", status: "fail" },
   ],
   "year-2": [
-    { code: "CS201", name: "Data Structures & Algorithms", credits: 4, grade: "A-", status: "pass" },
-    { code: "CS202", name: "Database Systems", credits: 3, grade: "B", status: "pass" },
-    { code: "CS203", name: "Object-Oriented Programming", credits: 4, grade: "B+", status: "pass" },
-    { code: "MA201", name: "Discrete Mathematics", credits: 3, grade: "C+", status: "pass" },
+    { code: "INTE 2104", name: "Data Structures & Algorithms", credits: 4, grade: "A-", status: "pass" },
+    { code: "INTE 2103", name: "Database Systems", credits: 3, grade: "B", status: "pass" },
+    { code: "INTE 2104", name: "Object-Oriented Programming", credits: 4, grade: "B+", status: "pass" },
+    { code: "PMAT 2013", name: "Discrete Mathematics", credits: 3, grade: "C+", status: "pass" },
   ],
   "year-3": [
-    { code: "CS301", name: "Software Engineering", credits: 4, grade: "A", status: "pass" },
-    { code: "CS302", name: "Computer Networks", credits: 3, grade: "B-", status: "pass" },
-    { code: "CS303", name: "Operating Systems", credits: 4, grade: "-", status: "pending" },
-    { code: "CS304", name: "Human-Computer Interaction", credits: 3, grade: "-", status: "pending" },
-    { code: "CS305", name: "Web Development", credits: 3, grade: "F", status: "fail" },
+    { code: "INTE 3102", name: "Software Engineering", credits: 4, grade: "A", status: "pass" },
+    { code: "INTE 3203", name: "Computer Networks", credits: 3, grade: "B-", status: "pass" },
+    { code: "INTE 3104", name: "Operating Systems", credits: 4, grade: "-", status: "pending" },
+    { code: "INTE 3105", name: "Human-Computer Interaction", credits: 3, grade: "-", status: "pending" },
+    { code: "MGTE 3106", name: "Project Management", credits: 3, grade: "F", status: "fail" },
   ],
   "year-4": [
-    { code: "CS401", name: "Final Year Project", credits: 8, grade: "-", status: "pending" },
-    { code: "CS402", name: "Machine Learning", credits: 4, grade: "-", status: "pending" },
+    { code: "INTE 4013", name: "Final Year Project", credits: 8, grade: "-", status: "pending" },
+    { code: "INTE 4024", name: "Machine Learning", credits: 4, grade: "-", status: "pending" },
   ],
   repeat: [
-    { code: "PH101", name: "Physics for Engineers", credits: 3, grade: "-", status: "pending" },
-    { code: "CS305", name: "Web Development", credits: 3, grade: "-", status: "pending" },
+    { code: "MGTE 1502", name: "Optimization", credits: 3, grade: "-", status: "pending" },
+    { code: "MGTE 3106", name: "Project Management", credits: 3, grade: "-", status: "pending" },
   ],
 };
 

@@ -38,7 +38,7 @@ export const AppSidebar = () => {
         <GraduationCap className="h-7 w-7 text-sidebar-primary shrink-0" />
         {!collapsed && (
           <span className="font-heading text-lg font-bold text-sidebar-primary-foreground whitespace-nowrap">
-            UniPortal
+            Student Portal
           </span>
         )}
       </div>
