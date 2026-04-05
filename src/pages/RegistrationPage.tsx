@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, MinusCircle, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, MinusCircle, Clock, FileWarning, ArrowRight } from "lucide-react";
 
 // ─── Grade / GPA helpers ───────────────────────────────────────────────────
 
@@ -143,26 +143,9 @@ const mockData: Record<string, YearData> = {
     },
   },
   "year-4": {
-    sem1: {
-      courses: [
-        { code: "INTE 4101", name: "Final Year Project I",       credits: 6, grade: "-", status: "pending" },
-        { code: "INTE 4102", name: "Machine Learning",           credits: 4, grade: "-", status: "pending" },
-        { code: "INTE 4103", name: "Distributed Systems",        credits: 3, grade: "-", status: "pending" },
-        { code: "MGTE 4104", name: "Technology Management",      credits: 2, grade: "-", status: "pending" },
-        { code: "INTE 4105", name: "Advanced Web Technologies",  credits: 3, grade: "-", status: "pending" },
-      ],
-      repeats: [],
-    },
-    sem2: {
-      courses: [
-        { code: "INTE 4201", name: "Final Year Project II",    credits: 6, grade: "-", status: "pending" },
-        { code: "INTE 4202", name: "Big Data Analytics",       credits: 3, grade: "-", status: "pending" },
-        { code: "INTE 4203", name: "DevOps & Deployment",      credits: 3, grade: "-", status: "pending" },
-        { code: "MGTE 4204", name: "Professional Development", credits: 2, grade: "-", status: "pending" },
-        { code: "INTE 4205", name: "Industry Internship",      credits: 4, grade: "-", status: "pending" },
-      ],
-      repeats: [],
-    },
+    // Empty data for Year 4 to represent unregistered status
+    sem1: { courses: [], repeats: [] },
+    sem2: { courses: [], repeats: [] },
   },
 };
 
@@ -222,6 +205,7 @@ const GPASummaryCard = ({ sem1Courses, sem2Courses, yearKey }: GPASummaryProps) 
     [sem1Courses, sem2Courses]
   );
 
+  // Updated to reflect the Unregistered status instead of "Yet to Take"
   if (isYear4) {
     return (
       <motion.div
@@ -231,12 +215,12 @@ const GPASummaryCard = ({ sem1Courses, sem2Courses, yearKey }: GPASummaryProps) 
         className="bg-card border border-border rounded-xl p-4 md:p-5 shadow-sm flex items-center gap-3 text-muted-foreground"
       >
         <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
-          <Clock className="h-4 w-4 text-muted-foreground" />
+          <FileWarning className="h-4 w-4 text-muted-foreground" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-foreground">GPA — Yet to Take</p>
+          <p className="text-sm font-semibold text-foreground">GPA Not Available</p>
           <p className="text-xs mt-0.5">
-            Year 4 modules have not been attempted. GPA will be calculated once results are available.
+            You must register for modules before GPA can be calculated for this academic year.
           </p>
         </div>
       </motion.div>
@@ -276,7 +260,7 @@ const GPASummaryCard = ({ sem1Courses, sem2Courses, yearKey }: GPASummaryProps) 
                 className={`h-full rounded-full ${gpaBg(gpa)}`}
               />
             </div>
-            <span className="text-xs text-muted-foreground">/ 3.9</span>
+            <span className="text-xs text-muted-foreground">/ 4.0</span>
           </div>
         ))}
       </div>
@@ -347,6 +331,7 @@ interface SemesterSectionProps {
 const SemesterSection = ({ semesterLabel, data, isRepeatPage = false, delay = 0 }: SemesterSectionProps) => {
   const hasRepeats = data.repeats.length > 0;
   const hasCourses = data.courses.length > 0;
+  
   if (!hasCourses && !hasRepeats) return null;
 
   return (
@@ -378,12 +363,43 @@ const SemesterSection = ({ semesterLabel, data, isRepeatPage = false, delay = 0 
   );
 };
 
+// ── Empty State for Unregistered Year ─────────────────────────────────────────
+
+const UnregisteredState = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.15 }}
+      className="flex flex-col items-center justify-center p-8 md:p-12 mt-8 bg-card border-2 border-dashed border-border rounded-xl text-center"
+    >
+      <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+        <FileWarning className="h-8 w-8 text-primary" aria-hidden="true" />
+      </div>
+      <h3 className="font-heading text-xl font-bold text-foreground mb-2">
+        Not Yet Registered
+      </h3>
+      <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
+        You are currently viewing Year 4, but you have not registered for any modules for this academic year yet. Registration is required to view your timetable and track grades.
+      </p>
+      <button 
+        onClick={() => alert("Navigate to Registration Flow")}
+        className="inline-flex items-center gap-2 h-11 px-6 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-opacity active:scale-95"
+      >
+        Register for Year 4
+        <ArrowRight className="h-4 w-4" />
+      </button>
+    </motion.div>
+  );
+};
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const RegistrationPage = () => {
   const { year } = useParams<{ year: string }>();
   const label = yearLabels[year || "year-1"] || "Registration";
   const isRepeatPage = year === "repeat";
+  const isUnregisteredYear = year === "year-4";
 
   const data: YearData = useMemo(() => {
     if (isRepeatPage) return repeatData;
@@ -410,11 +426,14 @@ const RegistrationPage = () => {
           />
         )}
 
+        {/* Content Area */}
         {isRepeatPage ? (
           <div className="space-y-8">
             <SemesterSection semesterLabel="Semester 1" data={data.sem1} isRepeatPage delay={0.1} />
             <SemesterSection semesterLabel="Semester 2" data={data.sem2} isRepeatPage delay={0.2} />
           </div>
+        ) : isUnregisteredYear ? (
+          <UnregisteredState />
         ) : (
           <div className="space-y-10">
             <SemesterSection semesterLabel="Semester 1" data={data.sem1} delay={0.15} />
