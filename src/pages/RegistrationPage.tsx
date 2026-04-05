@@ -2,7 +2,51 @@ import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
+import { CheckCircle2, XCircle, MinusCircle, Clock } from "lucide-react";
+
+// ─── Grade / GPA helpers ───────────────────────────────────────────────────
+
+const gradePoints: Record<string, number> = {
+  "A+": 4.0, "A": 4.0, "A-": 3.7,
+  "B+": 3.3, "B": 3.0, "B-": 2.7,
+  "C+": 2.3, "C": 2.0, "C-": 1.7,
+  "D+": 1.3, "D": 1.0,
+  "F":  0.0,
+};
+
+function calcGPA(courses: Course[]): number | null {
+  const gradeable = courses.filter(
+    (c) => c.grade !== "-" && gradePoints[c.grade] !== undefined
+  );
+  if (!gradeable.length) return null;
+  const pts = gradeable.reduce((s, c) => s + gradePoints[c.grade] * c.credits, 0);
+  const cr  = gradeable.reduce((s, c) => s + c.credits, 0);
+  return cr === 0 ? null : pts / cr;
+}
+
+function fmtGPA(gpa: number | null) { return gpa === null ? "—" : gpa.toFixed(2); }
+
+function gpaColor(gpa: number | null) {
+  if (gpa === null) return "text-muted-foreground";
+  if (gpa >= 3.7)  return "text-success";
+  if (gpa >= 3.0)  return "text-primary";
+  if (gpa >= 2.0)  return "text-warning-foreground";
+  return "text-destructive";
+}
+
+function gpaBg(gpa: number | null) {
+  if (gpa === null) return "bg-muted";
+  if (gpa >= 3.7)  return "bg-success";
+  if (gpa >= 3.0)  return "bg-primary";
+  if (gpa >= 2.0)  return "bg-warning";
+  return "bg-destructive";
+}
+
+function gpaPct(gpa: number | null) {
+  return gpa === null ? 0 : Math.min((gpa / 4.0) * 100, 100);
+}
+
+// ─── Data types ────────────────────────────────────────────────────────────
 
 interface Course {
   code: string;
@@ -23,15 +67,17 @@ interface YearData {
   sem2: SemesterData;
 }
 
+// ─── Mock data ─────────────────────────────────────────────────────────────
+
 const mockData: Record<string, YearData> = {
   "year-1": {
     sem1: {
       courses: [
-        { code: "INTE 1101", name: "Programming Fundamentals", credits: 3, grade: "B+", status: "pass" },
-        { code: "INTE 1102", name: "Introduction to Computing", credits: 2, grade: "A", status: "pass" },
-        { code: "PMAT 1103", name: "Mathematics I", credits: 3, grade: "C+", status: "pass" },
-        { code: "INTE 1104", name: "English for Professionals", credits: 2, grade: "B", status: "pass" },
-        { code: "MGTE 1105", name: "Optimization", credits: 3, grade: "D", status: "fail" },
+        { code: "INTE 1101", name: "Programming Fundamentals",  credits: 3, grade: "B+", status: "pass" },
+        { code: "INTE 1102", name: "Introduction to Computing", credits: 2, grade: "A",  status: "pass" },
+        { code: "PMAT 1103", name: "Mathematics I",             credits: 3, grade: "C+", status: "pass" },
+        { code: "INTE 1104", name: "English for Professionals", credits: 2, grade: "B",  status: "pass" },
+        { code: "MGTE 1105", name: "Optimization",              credits: 3, grade: "D",  status: "fail" },
       ],
       repeats: [
         { code: "MGTE 1105", name: "Optimization", credits: 3, grade: "C", status: "pass", repeated: true },
@@ -39,11 +85,11 @@ const mockData: Record<string, YearData> = {
     },
     sem2: {
       courses: [
-        { code: "INTE 1201", name: "Computer Hardware", credits: 3, grade: "B", status: "pass" },
-        { code: "INTE 1202", name: "Web Technologies", credits: 3, grade: "A-", status: "pass" },
-        { code: "PMAT 1203", name: "Statistics I", credits: 3, grade: "C", status: "pass" },
-        { code: "INTE 1204", name: "Digital Systems", credits: 2, grade: "B+", status: "pass" },
-        { code: "MGTE 1205", name: "Communication Skills", credits: 2, grade: "A", status: "pass" },
+        { code: "INTE 1201", name: "Computer Hardware",     credits: 3, grade: "B",  status: "pass" },
+        { code: "INTE 1202", name: "Web Technologies",      credits: 3, grade: "A-", status: "pass" },
+        { code: "PMAT 1203", name: "Statistics I",          credits: 3, grade: "C",  status: "pass" },
+        { code: "INTE 1204", name: "Digital Systems",       credits: 2, grade: "B+", status: "pass" },
+        { code: "MGTE 1205", name: "Communication Skills",  credits: 2, grade: "A",  status: "pass" },
       ],
       repeats: [],
     },
@@ -52,10 +98,10 @@ const mockData: Record<string, YearData> = {
     sem1: {
       courses: [
         { code: "INTE 2101", name: "Data Structures & Algorithms", credits: 4, grade: "A-", status: "pass" },
-        { code: "INTE 2102", name: "Database Systems", credits: 3, grade: "B", status: "pass" },
-        { code: "PMAT 2103", name: "Discrete Mathematics", credits: 3, grade: "C+", status: "pass" },
-        { code: "INTE 2104", name: "Object-Oriented Programming", credits: 4, grade: "B+", status: "pass" },
-        { code: "MGTE 2105", name: "Project Planning", credits: 2, grade: "F", status: "fail" },
+        { code: "INTE 2102", name: "Database Systems",             credits: 3, grade: "B",  status: "pass" },
+        { code: "PMAT 2103", name: "Discrete Mathematics",         credits: 3, grade: "C+", status: "pass" },
+        { code: "INTE 2104", name: "Object-Oriented Programming",  credits: 4, grade: "B+", status: "pass" },
+        { code: "MGTE 2105", name: "Project Planning",             credits: 2, grade: "F",  status: "fail" },
       ],
       repeats: [
         { code: "MGTE 2105", name: "Project Planning", credits: 2, grade: "-", status: "pending", repeated: true },
@@ -63,11 +109,11 @@ const mockData: Record<string, YearData> = {
     },
     sem2: {
       courses: [
-        { code: "INTE 2201", name: "Operating Systems", credits: 4, grade: "B-", status: "pass" },
-        { code: "INTE 2202", name: "Computer Networks", credits: 3, grade: "B", status: "pass" },
-        { code: "PMAT 2203", name: "Numerical Methods", credits: 3, grade: "A", status: "pass" },
+        { code: "INTE 2201", name: "Operating Systems",     credits: 4, grade: "B-", status: "pass" },
+        { code: "INTE 2202", name: "Computer Networks",     credits: 3, grade: "B",  status: "pass" },
+        { code: "PMAT 2203", name: "Numerical Methods",     credits: 3, grade: "A",  status: "pass" },
         { code: "INTE 2204", name: "Software Architecture", credits: 3, grade: "C+", status: "pass" },
-        { code: "INTE 2205", name: "Professional Ethics", credits: 2, grade: "A-", status: "pass" },
+        { code: "INTE 2205", name: "Professional Ethics",   credits: 2, grade: "A-", status: "pass" },
       ],
       repeats: [],
     },
@@ -75,10 +121,10 @@ const mockData: Record<string, YearData> = {
   "year-3": {
     sem1: {
       courses: [
-        { code: "INTE 3101", name: "Software Engineering", credits: 4, grade: "A", status: "pass" },
-        { code: "INTE 3102", name: "Human-Computer Interaction", credits: 3, grade: "B-", status: "pass" },
-        { code: "INTE 3103", name: "Information Security", credits: 3, grade: "B+", status: "pass" },
-        { code: "MGTE 3104", name: "Project Management", credits: 3, grade: "F", status: "fail" },
+        { code: "INTE 3101", name: "Software Engineering",           credits: 4, grade: "A",  status: "pass" },
+        { code: "INTE 3102", name: "Human-Computer Interaction",     credits: 3, grade: "B-", status: "pass" },
+        { code: "INTE 3103", name: "Information Security",           credits: 3, grade: "B+", status: "pass" },
+        { code: "MGTE 3104", name: "Project Management",             credits: 3, grade: "F",  status: "fail" },
         { code: "INTE 3105", name: "Mobile Application Development", credits: 3, grade: "A-", status: "pass" },
       ],
       repeats: [
@@ -87,11 +133,11 @@ const mockData: Record<string, YearData> = {
     },
     sem2: {
       courses: [
-        { code: "INTE 3201", name: "Cloud Computing", credits: 3, grade: "-", status: "pending" },
+        { code: "INTE 3201", name: "Cloud Computing",     credits: 3, grade: "-", status: "pending" },
         { code: "INTE 3202", name: "Artificial Intelligence", credits: 4, grade: "-", status: "pending" },
-        { code: "INTE 3203", name: "Advanced Databases", credits: 3, grade: "-", status: "pending" },
-        { code: "MGTE 3204", name: "Entrepreneurship", credits: 2, grade: "-", status: "pending" },
-        { code: "INTE 3205", name: "Research Methods", credits: 2, grade: "-", status: "pending" },
+        { code: "INTE 3203", name: "Advanced Databases",  credits: 3, grade: "-", status: "pending" },
+        { code: "MGTE 3204", name: "Entrepreneurship",    credits: 2, grade: "-", status: "pending" },
+        { code: "INTE 3205", name: "Research Methods",    credits: 2, grade: "-", status: "pending" },
       ],
       repeats: [],
     },
@@ -99,34 +145,33 @@ const mockData: Record<string, YearData> = {
   "year-4": {
     sem1: {
       courses: [
-        { code: "INTE 4101", name: "Final Year Project I", credits: 6, grade: "-", status: "pending" },
-        { code: "INTE 4102", name: "Machine Learning", credits: 4, grade: "-", status: "pending" },
-        { code: "INTE 4103", name: "Distributed Systems", credits: 3, grade: "-", status: "pending" },
-        { code: "MGTE 4104", name: "Technology Management", credits: 2, grade: "-", status: "pending" },
-        { code: "INTE 4105", name: "Advanced Web Technologies", credits: 3, grade: "-", status: "pending" },
+        { code: "INTE 4101", name: "Final Year Project I",       credits: 6, grade: "-", status: "pending" },
+        { code: "INTE 4102", name: "Machine Learning",           credits: 4, grade: "-", status: "pending" },
+        { code: "INTE 4103", name: "Distributed Systems",        credits: 3, grade: "-", status: "pending" },
+        { code: "MGTE 4104", name: "Technology Management",      credits: 2, grade: "-", status: "pending" },
+        { code: "INTE 4105", name: "Advanced Web Technologies",  credits: 3, grade: "-", status: "pending" },
       ],
       repeats: [],
     },
     sem2: {
       courses: [
-        { code: "INTE 4201", name: "Final Year Project II", credits: 6, grade: "-", status: "pending" },
-        { code: "INTE 4202", name: "Big Data Analytics", credits: 3, grade: "-", status: "pending" },
-        { code: "INTE 4203", name: "DevOps & Deployment", credits: 3, grade: "-", status: "pending" },
+        { code: "INTE 4201", name: "Final Year Project II",    credits: 6, grade: "-", status: "pending" },
+        { code: "INTE 4202", name: "Big Data Analytics",       credits: 3, grade: "-", status: "pending" },
+        { code: "INTE 4203", name: "DevOps & Deployment",      credits: 3, grade: "-", status: "pending" },
         { code: "MGTE 4204", name: "Professional Development", credits: 2, grade: "-", status: "pending" },
-        { code: "INTE 4205", name: "Industry Internship", credits: 4, grade: "-", status: "pending" },
+        { code: "INTE 4205", name: "Industry Internship",      credits: 4, grade: "-", status: "pending" },
       ],
       repeats: [],
     },
   },
 };
 
-// For the "repeat" route — show a unified repeat view
 const repeatData: YearData = {
   sem1: {
     courses: [],
     repeats: [
-      { code: "MGTE 1105", name: "Optimization", credits: 3, grade: "C", status: "pass", repeated: true },
-      { code: "MGTE 2105", name: "Project Planning", credits: 2, grade: "-", status: "pending", repeated: true },
+      { code: "MGTE 1105", name: "Optimization",    credits: 3, grade: "C",  status: "pass",    repeated: true },
+      { code: "MGTE 2105", name: "Project Planning",credits: 2, grade: "-",  status: "pending", repeated: true },
     ],
   },
   sem2: {
@@ -138,18 +183,18 @@ const repeatData: YearData = {
 };
 
 const yearLabels: Record<string, string> = {
-  "year-1": "Year 1",
-  "year-2": "Year 2",
-  "year-3": "Year 3",
-  "year-4": "Year 4",
+  "year-1": "Year 1", "year-2": "Year 2",
+  "year-3": "Year 3", "year-4": "Year 4",
   repeat: "Repeat Modules",
 };
 
+// ─── Sub-components ────────────────────────────────────────────────────────
+
 const StatusBadge = ({ status }: { status: Course["status"] }) => {
   const config = {
-    pass: { icon: CheckCircle2, label: "Pass", className: "bg-success/15 text-success" },
-    fail: { icon: XCircle, label: "Fail", className: "bg-destructive/15 text-destructive" },
-    pending: { icon: MinusCircle, label: "Pending", className: "bg-warning/15 text-warning-foreground" },
+    pass:    { icon: CheckCircle2, label: "Pass",    className: "bg-success/15 text-success" },
+    fail:    { icon: XCircle,      label: "Fail",    className: "bg-destructive/15 text-destructive" },
+    pending: { icon: MinusCircle,  label: "Pending", className: "bg-warning/15 text-warning-foreground" },
   };
   const { icon: Icon, label, className } = config[status];
   return (
@@ -159,6 +204,87 @@ const StatusBadge = ({ status }: { status: Course["status"] }) => {
     </span>
   );
 };
+
+// ── GPA Summary Card ────────────────────────────────────────────────────────
+interface GPASummaryProps {
+  sem1Courses: Course[];
+  sem2Courses: Course[];
+  yearKey: string;
+}
+
+const GPASummaryCard = ({ sem1Courses, sem2Courses, yearKey }: GPASummaryProps) => {
+  const isYear4 = yearKey === "year-4";
+
+  const sem1GPA = useMemo(() => calcGPA(sem1Courses), [sem1Courses]);
+  const sem2GPA = useMemo(() => calcGPA(sem2Courses), [sem2Courses]);
+  const yearGPA = useMemo(
+    () => calcGPA([...sem1Courses, ...sem2Courses]),
+    [sem1Courses, sem2Courses]
+  );
+
+  if (isYear4) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="bg-card border border-border rounded-xl p-4 md:p-5 shadow-sm flex items-center gap-3 text-muted-foreground"
+      >
+        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">GPA — Yet to Take</p>
+          <p className="text-xs mt-0.5">
+            Year 4 modules have not been attempted. GPA will be calculated once results are available.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  const stats = [
+    { label: "Semester 1 GPA", gpa: sem1GPA },
+    { label: "Semester 2 GPA", gpa: sem2GPA },
+    { label: "Year GPA",       gpa: yearGPA, highlight: true },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="bg-card border border-border rounded-xl p-4 md:p-5 shadow-sm"
+    >
+      <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+        GPA Summary
+      </h2>
+
+      <div className="grid grid-cols-3 gap-3 md:gap-6">
+        {stats.map(({ label, gpa, highlight }) => (
+          <div key={label} className={`flex flex-col gap-2 ${highlight ? "border-l border-border pl-3 md:pl-5" : ""}`}>
+            <span className="text-xs text-muted-foreground leading-tight">{label}</span>
+            <span className={`font-heading text-2xl md:text-3xl font-bold tabular-nums ${gpaColor(gpa)}`}>
+              {fmtGPA(gpa)}
+            </span>
+            {/* Progress bar */}
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${gpaPct(gpa)}%` }}
+                transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
+                className={`h-full rounded-full ${gpaBg(gpa)}`}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground">/ 3.9</span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+// ── Course Table ─────────────────────────────────────────────────────────────
 
 interface CourseTableProps {
   courses: Course[];
@@ -182,7 +308,7 @@ const CourseTable = ({ courses, caption, isRepeat = false }: CourseTableProps) =
             <tr className={isRepeat ? "bg-warning/5" : "bg-secondary/60"}>
               <th className="text-left px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Code</th>
               <th className="text-left px-3 md:px-5 py-3 font-semibold text-foreground">Module Name</th>
-              <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Credits</th>
+              <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Cr.</th>
               <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground">Grade</th>
               <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground">Status</th>
             </tr>
@@ -209,6 +335,8 @@ const CourseTable = ({ courses, caption, isRepeat = false }: CourseTableProps) =
   );
 };
 
+// ── Semester Section ──────────────────────────────────────────────────────────
+
 interface SemesterSectionProps {
   semesterLabel: string;
   data: SemesterData;
@@ -219,7 +347,6 @@ interface SemesterSectionProps {
 const SemesterSection = ({ semesterLabel, data, isRepeatPage = false, delay = 0 }: SemesterSectionProps) => {
   const hasRepeats = data.repeats.length > 0;
   const hasCourses = data.courses.length > 0;
-
   if (!hasCourses && !hasRepeats) return null;
 
   return (
@@ -234,9 +361,7 @@ const SemesterSection = ({ semesterLabel, data, isRepeatPage = false, delay = 0 
         {semesterLabel}
       </h2>
 
-      {hasCourses && !isRepeatPage && (
-        <CourseTable courses={data.courses} />
-      )}
+      {hasCourses && !isRepeatPage && <CourseTable courses={data.courses} />}
 
       {hasRepeats && (
         <CourseTable
@@ -252,6 +377,8 @@ const SemesterSection = ({ semesterLabel, data, isRepeatPage = false, delay = 0 
     </motion.div>
   );
 };
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 const RegistrationPage = () => {
   const { year } = useParams<{ year: string }>();
@@ -274,35 +401,24 @@ const RegistrationPage = () => {
           {label}
         </motion.h1>
 
+        {/* GPA Summary — year pages only, not repeat */}
+        {!isRepeatPage && (
+          <GPASummaryCard
+            sem1Courses={data.sem1.courses}
+            sem2Courses={data.sem2.courses}
+            yearKey={year || "year-1"}
+          />
+        )}
+
         {isRepeatPage ? (
-          // Repeat page: show just the repeat tables per semester
           <div className="space-y-8">
-            <SemesterSection
-              semesterLabel="Semester 1"
-              data={data.sem1}
-              isRepeatPage
-              delay={0.1}
-            />
-            <SemesterSection
-              semesterLabel="Semester 2"
-              data={data.sem2}
-              isRepeatPage
-              delay={0.2}
-            />
+            <SemesterSection semesterLabel="Semester 1" data={data.sem1} isRepeatPage delay={0.1} />
+            <SemesterSection semesterLabel="Semester 2" data={data.sem2} isRepeatPage delay={0.2} />
           </div>
         ) : (
-          // Year page: full modules + repeat sub-tables per semester
           <div className="space-y-10">
-            <SemesterSection
-              semesterLabel="Semester 1"
-              data={data.sem1}
-              delay={0.1}
-            />
-            <SemesterSection
-              semesterLabel="Semester 2"
-              data={data.sem2}
-              delay={0.2}
-            />
+            <SemesterSection semesterLabel="Semester 1" data={data.sem1} delay={0.15} />
+            <SemesterSection semesterLabel="Semester 2" data={data.sem2} delay={0.25} />
           </div>
         )}
       </div>
