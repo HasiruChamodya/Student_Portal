@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { GraduationCap, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { GraduationCap, Loader2, Eye, EyeOff, ArrowLeft, X, Mail, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import campusHero from "@/assets/campus-hero.jpg";
 
@@ -20,6 +20,9 @@ const LoginPage = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSubmitted, setForgotSubmitted] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+
+  // Help Desk Modal state
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +56,69 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-h-screen flex bg-background relative">
+      {/* Help Desk Modal */}
+      <AnimatePresence>
+        {showHelpModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowHelpModal(false)}
+              className="fixed inset-0 bg-black/50 z-40"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="w-[90%] max-w-sm bg-card rounded-xl shadow-xl overflow-hidden border border-border"
+              >
+              <div className="flex justify-between items-center p-4 border-b border-border bg-muted/50">
+                <h3 className="font-semibold text-foreground">IT Help Desk</h3>
+                <button
+                  onClick={() => setShowHelpModal(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-secondary"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4 ">
+                <p className="text-sm text-muted-foreground">
+                  If you are experiencing issues accessing your account, please contact the support team using the details below:
+                </p>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/50">
+                    <Phone className="h-5 w-5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone Support</p>
+                      <p className="text-sm font-semibold text-foreground">+94 11 290 3000</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border/50">
+                    <Mail className="h-5 w-5 text-primary shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email Support</p>
+                      <a href="mailto:ithelpdesk@kln.ac.lk" className="text-sm font-semibold text-primary hover:underline">
+                        ithelpdesk@kln.ac.lk
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  Working hours: Mon - Fri, 8:30 AM to 4:00 PM
+                </p>
+              </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Left panel - decorative */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden items-center justify-center">
         <img
@@ -75,7 +140,7 @@ const LoginPage = () => {
           <h1 className="font-heading text-4xl font-bold text-primary-foreground mb-4">
             Faculty Information System
           </h1>
-          <p className="text-primary-foreground/80 text-lg max-w-md">
+          <p className="text-primary-foreground/80 text-lg max-w-md mx-auto">
             Access your academic records, register for courses, and manage your student profile — all in one place.
           </p>
         </motion.div>
@@ -183,7 +248,13 @@ const LoginPage = () => {
               </form>
 
               <p className="text-xs text-muted-foreground mt-8 text-center">
-                Having trouble signing in? Contact the IT Help Desk.
+                Having trouble signing in?{" "}
+                <button 
+                  onClick={() => setShowHelpModal(true)}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Contact the IT Help Desk.
+                </button>
               </p>
             </motion.div>
           ) : (
@@ -266,7 +337,13 @@ const LoginPage = () => {
               )}
 
               <p className="text-xs text-muted-foreground mt-8 text-center">
-                Don't have access to your registered email? Contact the IT Help Desk.
+                Don't have access to your registered email?{" "}
+                <button 
+                  onClick={() => setShowHelpModal(true)}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Contact the IT Help Desk.
+                </button>
               </p>
             </motion.div>
           )}
