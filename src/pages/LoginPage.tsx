@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { GraduationCap, Loader2, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+import campusHero from "@/assets/campus-hero.jpg";
 
 const LoginPage = () => {
   const { login, isLoading } = useAuth();
