@@ -71,9 +71,7 @@ const ExamAdmissionPage = () => {
             <div className="border-t border-border pt-4">
               <h3 className="font-semibold text-foreground mb-2">Registered Exam Modules</h3>
               <ul className="space-y-1.5 text-sm text-foreground">
-                <li className="flex gap-3"><span className="font-medium w-16">CS303</span> Operating Systems</li>
-                <li className="flex gap-3"><span className="font-medium w-16">CS304</span> Human-Computer Interaction</li>
-                <li className="flex gap-3"><span className="font-medium w-16">CS305</span> Web Development (Repeat)</li>
+                <li className="flex gap-3"><span className="font-medium w-16">INTE 2014</span> Optimaization (Repeat)</li>
               </ul>
             </div>
 
