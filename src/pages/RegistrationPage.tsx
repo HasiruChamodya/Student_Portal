@@ -292,7 +292,7 @@ const CourseTable = ({ courses, caption, isRepeat = false }: CourseTableProps) =
             <tr className={isRepeat ? "bg-warning/5" : "bg-secondary/60"}>
               <th className="text-left px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Code</th>
               <th className="text-left px-3 md:px-5 py-3 font-semibold text-foreground">Module Name</th>
-              <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Cr.</th>
+              <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground whitespace-nowrap">Credits</th>
               <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground">Grade</th>
               <th className="text-center px-3 md:px-5 py-3 font-semibold text-foreground">Status</th>
             </tr>
