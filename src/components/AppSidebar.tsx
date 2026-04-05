@@ -17,7 +17,7 @@ const navItems = [
   { label: "Year 2", path: "/registration/year-2", icon: BookOpen },
   { label: "Year 3", path: "/registration/year-3", icon: BookOpen },
   { label: "Year 4", path: "/registration/year-4", icon: BookOpen },
-  { label: "Repeat Modules", path: "/registration/repeat", icon: RotateCcw },
+  // { label: "Repeat Modules", path: "/registration/repeat", icon: RotateCcw },
   { label: "Exam Admission", path: "/exam-admission", icon: FileCheck },
 ];
 
