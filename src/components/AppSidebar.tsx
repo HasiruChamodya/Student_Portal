@@ -6,29 +6,52 @@ import {
   FileCheck,
   GraduationCap,
   ChevronLeft,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { label: "Year 1 Registration", path: "/registration/year-1", icon: BookOpen },
-  { label: "Year 2 Registration", path: "/registration/year-2", icon: BookOpen },
-  { label: "Year 3 Registration", path: "/registration/year-3", icon: BookOpen },
-  { label: "Year 4 Registration", path: "/registration/year-4", icon: BookOpen },
-  { label: "Repeat Registration", path: "/registration/repeat", icon: RotateCcw },
+  { label: "Year 1", path: "/registration/year-1", icon: BookOpen },
+  { label: "Year 2", path: "/registration/year-2", icon: BookOpen },
+  { label: "Year 3", path: "/registration/year-3", icon: BookOpen },
+  { label: "Year 4", path: "/registration/year-4", icon: BookOpen },
+  // { label: "Repeat Modules", path: "/registration/repeat", icon: RotateCcw },
   { label: "Exam Admission", path: "/exam-admission", icon: FileCheck },
 ];
 
-export const AppSidebar = () => {
+interface AppSidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export const AppSidebar = ({ mobileOpen = false, onMobileClose }: AppSidebarProps) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
-  return (
+  // Close mobile drawer on route change
+  useEffect(() => {
+    onMobileClose?.();
+  }, [location.pathname]);
+
+  // Prevent body scroll when drawer is open on mobile
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
+  const sidebarContent = (
     <aside
       className={cn(
-        "flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 shrink-0",
-        collapsed ? "w-16" : "w-64"
+        "flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300",
+        // Desktop: collapsible width; Mobile: full sidebar inside drawer
+        "w-64 md:shrink-0",
+        collapsed ? "md:w-16" : "md:w-64"
       )}
       role="navigation"
       aria-label="Main navigation"
@@ -41,6 +64,14 @@ export const AppSidebar = () => {
             Student Portal
           </span>
         )}
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="ml-auto md:hidden text-sidebar-foreground hover:text-sidebar-accent-foreground"
+          aria-label="Close navigation"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Nav Links */}
@@ -69,10 +100,10 @@ export const AppSidebar = () => {
         })}
       </nav>
 
-      {/* Collapse toggle */}
+      {/* Collapse toggle — desktop only */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-12 border-t border-sidebar-border hover:bg-sidebar-accent transition-colors"
+        className="hidden md:flex items-center justify-center h-12 border-t border-sidebar-border hover:bg-sidebar-accent transition-colors"
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         <ChevronLeft
@@ -81,5 +112,30 @@ export const AppSidebar = () => {
         />
       </button>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex flex-col shrink-0">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={onMobileClose}
+            aria-hidden="true"
+          />
+          {/* Drawer panel */}
+          <div className="relative z-10 flex flex-col w-72 max-w-[85vw] h-full shadow-xl">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
